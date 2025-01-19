@@ -11,7 +11,7 @@ export function ToDoListBoard() {
 
   return (
     <div className="todo-board">
-      <ToDoListColumn title="To Do">
+      <ToDoListColumn title="To Do" status="todo">
         {todoCards.map((card) => (
           <ToDoCard
             key={card.id}
@@ -23,7 +23,7 @@ export function ToDoListBoard() {
         ))}
       </ToDoListColumn>
 
-      <ToDoListColumn title="In Progress">
+      <ToDoListColumn title="In Progress" status="in-progress">
         {inProgressCards.map((card) => (
           <ToDoCard
             key={card.id}
@@ -35,7 +35,7 @@ export function ToDoListBoard() {
         ))}
       </ToDoListColumn>
 
-      <ToDoListColumn title="Done">
+      <ToDoListColumn title="Done" status="done">
         {doneCards.map((card) => (
           <ToDoCard
             key={card.id}

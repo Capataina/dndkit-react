@@ -1,6 +1,8 @@
-import { X } from "lucide-react"
+import { X, ChevronDown } from "lucide-react"
 import { useToDoStore } from "@/store/ToDoStore"
 import { useState, useRef, useEffect, useCallback } from "react"
+import { cn } from "@/lib/utils"
+import { Card, CardHeader, CardContent } from "@/Components/ui/card"
 
 interface ToDoCardProps {
   id: string
@@ -21,6 +23,8 @@ export default function ToDoCard({ id, title, description, priority }: ToDoCardP
   // Use separate selectors to prevent unnecessary rerenders
   const deleteCard = useToDoStore(useCallback((state) => state.deleteCard, []))
   const updateCard = useToDoStore(useCallback((state) => state.updateCard, []))
+  const [isPriorityOpen, setIsPriorityOpen] = useState(false)
+  const priorityRef = useRef<HTMLDivElement>(null)
 
   // Sync local state with props when they change
   useEffect(() => {
@@ -36,6 +40,18 @@ export default function ToDoCard({ id, title, description, priority }: ToDoCardP
       descriptionInputRef.current.focus()
     }
   }, [isEditingTitle, isEditingDescription])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (priorityRef.current && !priorityRef.current.contains(event.target as Node)) {
+        setIsPriorityOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleTitleSubmit = () => {
     const newTitle = titleValue.trim()
@@ -69,77 +85,118 @@ export default function ToDoCard({ id, title, description, priority }: ToDoCardP
     }
   }
 
+  const handlePriorityChange = (newPriority: 'low' | 'medium' | 'high') => {
+    updateCard(id, { priority: newPriority })
+    setIsPriorityOpen(false)
+  }
+
+  const priorityColors = {
+    low: 'text-green-400',
+    medium: 'text-yellow-400',
+    high: 'text-red-400',
+  }
+
+  const priorityStyles = {
+    low: "border-green-500/50",
+    medium: "border-yellow-500/50",
+    high: "border-red-500/50",
+  }
+
   return (
-    <div className={`todo-card ${priority ? `priority-${priority}` : ''} group relative`}>
-      <button
-        onClick={() => deleteCard(id)}
-        className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity"
-        aria-label="Delete card"
-      >
-        <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
-      </button>
+    <Card className={cn(
+      "group relative border-2",
+      priority && priorityStyles[priority]
+    )}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b p-4">
+        <div className="relative" ref={priorityRef}>
+          <button
+            onClick={() => setIsPriorityOpen(!isPriorityOpen)}
+            className={cn(
+              "flex items-center gap-1 text-sm hover:text-primary transition-colors",
+              priority ? priorityColors[priority] : "text-muted-foreground"
+            )}
+          >
+            <ChevronDown className="h-4 w-4" />
+          </button>
 
-      {isEditingTitle ? (
-        <input
-          ref={titleInputRef}
-          type="text"
-          value={titleValue}
-          onChange={(e) => setTitleValue(e.target.value)}
-          onBlur={handleTitleSubmit}
-          onKeyDown={(e) => 
-            handleKeyDown(
-              e,
-              handleTitleSubmit,
-              () => {
-                setTitleValue(title)
-                setIsEditingTitle(false)
-              }
-            )
-          }
-          className="w-full bg-transparent border-none p-0 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary rounded"
-        />
-      ) : (
-        <h3 
-          className="todo-card-title cursor-pointer hover:text-primary transition-colors"
-          onClick={() => setIsEditingTitle(true)}
-        >
-          {titleValue}
-        </h3>
-      )}
-
-      {isEditingDescription ? (
-        <input
-          ref={descriptionInputRef}
-          type="text"
-          value={descriptionValue}
-          onChange={(e) => setDescriptionValue(e.target.value)}
-          onBlur={handleDescriptionSubmit}
-          onKeyDown={(e) => 
-            handleKeyDown(
-              e,
-              handleDescriptionSubmit,
-              () => {
-                setDescriptionValue(description || '')
-                setIsEditingDescription(false)
-              }
-            )
-          }
-          className="w-full bg-transparent border-none p-0 mt-1 text-sm text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded"
-          placeholder="Add description..."
-        />
-      ) : (
-        <p 
-          className="todo-card-description cursor-pointer hover:text-primary transition-colors"
-          onClick={() => setIsEditingDescription(true)}
-        >
-          {descriptionValue || (
-            <span className="text-muted-foreground/50 italic">
-              Add description...
-            </span>
+          {isPriorityOpen && (
+            <div className="absolute top-full mt-1 z-10 bg-secondary border rounded-md shadow-lg py-1">
+              {(['low', 'medium', 'high'] as const).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => handlePriorityChange(p)}
+                  className={cn(
+                    "w-full px-3 py-1 text-left text-sm hover:bg-muted transition-colors",
+                    priorityColors[p]
+                  )}
+                >
+                  {p.charAt(0).toUpperCase() + p.slice(1)}
+                </button>
+              ))}
+            </div>
           )}
-        </p>
-      )}
-    </div>
+        </div>
+
+        {isEditingTitle ? (
+          <input
+            ref={titleInputRef}
+            type="text"
+            value={titleValue}
+            onChange={(e) => setTitleValue(e.target.value)}
+            onBlur={handleTitleSubmit}
+            onKeyDown={(e) => handleKeyDown(e, handleTitleSubmit, () => {
+              setTitleValue(title)
+              setIsEditingTitle(false)
+            })}
+            className="flex-1 bg-transparent border-none p-0 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary rounded text-center mx-2"
+          />
+        ) : (
+          <h3 
+            className="flex-1 text-center cursor-pointer hover:text-primary transition-colors mx-2"
+            onClick={() => setIsEditingTitle(true)}
+          >
+            {titleValue}
+          </h3>
+        )}
+
+        <button
+          onClick={() => deleteCard(id)}
+          className="opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Delete card"
+        >
+          <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+        </button>
+      </CardHeader>
+
+      <CardContent className="pt-2 px-4 pb-4">
+        {isEditingDescription ? (
+          <input
+            ref={descriptionInputRef}
+            type="text"
+            value={descriptionValue}
+            onChange={(e) => setDescriptionValue(e.target.value)}
+            onBlur={handleDescriptionSubmit}
+            onKeyDown={(e) => handleKeyDown(e, handleDescriptionSubmit, () => {
+              setDescriptionValue(description || '')
+              setIsEditingDescription(false)
+            })}
+            className="w-full bg-transparent border-none p-0 text-sm text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary rounded"
+            placeholder="Add description..."
+          />
+        ) : (
+          <p 
+            className="cursor-pointer hover:text-primary transition-colors text-sm"
+            onClick={() => setIsEditingDescription(true)}
+          >
+            {descriptionValue || (
+              <span className="text-muted-foreground/50 italic">
+                Add description...
+              </span>
+            )}
+          </p>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

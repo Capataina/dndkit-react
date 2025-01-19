@@ -19,27 +19,27 @@ interface ToDoStore {
 export const useToDoStore = create<ToDoStore>((set) => ({
   cards: [
     {
-      id: '1',
+      id: crypto.randomUUID(),
       title: 'Design new landing page',
       description: 'Create wireframes and mockups',
       priority: 'high',
       status: 'todo',
     },
     {
-      id: '2',
+      id: crypto.randomUUID(),
       title: 'Update documentation',
       priority: 'low',
       status: 'todo',
     },
     {
-      id: '3',
+      id: crypto.randomUUID(),
       title: 'Implement authentication',
       description: 'Add OAuth support',
       priority: 'medium',
       status: 'in-progress',
     },
     {
-      id: '4',
+      id: crypto.randomUUID(),
       title: 'Setup project',
       description: 'Initialize repository and dependencies',
       priority: 'low',
