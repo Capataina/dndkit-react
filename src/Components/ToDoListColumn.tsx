@@ -1,6 +1,8 @@
 import React from "react"
 import { Plus } from "lucide-react"
 import { useToDoStore } from "@/store/ToDoStore"
+import { useDroppable } from "@dnd-kit/core"
+import { cn } from "@/lib/utils"
 
 interface ToDoListColumnProps {
   title: string
@@ -10,6 +12,9 @@ interface ToDoListColumnProps {
 
 export default function ToDoListColumn({ title, children, status }: ToDoListColumnProps) {
   const addCard = useToDoStore((state) => state.addCard)
+  const { setNodeRef, isOver } = useDroppable({
+    id: status,
+  })
 
   const handleAddCard = () => {
     addCard({
@@ -19,7 +24,13 @@ export default function ToDoListColumn({ title, children, status }: ToDoListColu
   }
 
   return (
-    <div className="todo-column group/column">
+    <div 
+      ref={setNodeRef}
+      className={cn(
+        "todo-column group/column",
+        isOver && "ring-2 ring-primary/50"
+      )}
+    >
       <div className="todo-column-header border-b p-1">
         <h1 className="text-xl font-bold">{title}</h1>
         <span className="text-muted-foreground/50 italic">{React.Children.count(children)} tasks</span>

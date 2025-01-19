@@ -3,6 +3,7 @@ import { useToDoStore } from "@/store/ToDoStore"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { Card, CardHeader, CardContent } from "@/Components/ui/card"
+import { useDraggable } from "@dnd-kit/core"
 
 interface ToDoCardProps {
   id: string
@@ -12,6 +13,14 @@ interface ToDoCardProps {
 }
 
 export default function ToDoCard({ id, title, description, priority }: ToDoCardProps) {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: id,
+  })
+
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined
+
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [titleValue, setTitleValue] = useState<string>(title)
@@ -103,10 +112,16 @@ export default function ToDoCard({ id, title, description, priority }: ToDoCardP
   }
 
   return (
-    <Card className={cn(
-      "group relative border-2",
-      priority && priorityStyles[priority]
-    )}>
+    <Card
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className={cn(
+        "group relative border-2 cursor-grab active:cursor-grabbing",
+        priority && priorityStyles[priority]
+      )}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b p-4">
         <div className="relative" ref={priorityRef}>
           <button
