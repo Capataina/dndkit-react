@@ -1,50 +1,41 @@
-# React + TypeScript + Vite
+# Todo Board
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A drag-and-drop to-do list application built with React and Zustand. The app allows users to organize tasks across multiple columns—To Do, In Progress, and Done—while providing features like task prioritization and inline editing.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [x] Drag-and-drop functionality for task movement between columns.
+- [x] Task prioritization (Low, Medium, High).
+- [x] Inline editing for task titles and descriptions.
+- [x] Task addition and deletion.
+- [ ] Responsive design for smaller screens.
+- [ ] Persistent data storage.
+- [ ] A way to create new lists.
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **Frontend**: React, TypeScript, Zustand for state management.
+- **Styling**: Tailwind CSS, CSS Modules.
+- **Drag-and-Drop**: `@dnd-kit/core` library.
 
-- Configure the top-level `parserOptions` property like this:
+## Project Structure
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```plaintext
+src/
+├── Components/
+│   ├── ToDoCard.tsx        # Component for individual task cards.
+│   ├── ToDoListBoard.tsx   # Main board layout handling drag-and-drop.
+│   ├── ToDoListColumn.tsx  # Column layout with task grouping.
+│   └── ui/
+│       └── card.tsx        # Reusable Card UI components.
+├── store/
+│   └── ToDoStore.tsx       # Zustand store managing app state.
+├── App.tsx                 # Main application entry component.
+├── main.tsx                # React app initialization.
+├── index.css               # Global Tailwind CSS styles.
+└── App.css                 # Component-specific styles.
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## How to Use
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+You can visit the website for the app at https://dndkit-react.vercel.app/.
